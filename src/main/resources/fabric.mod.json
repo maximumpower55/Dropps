@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "example",
+	"version": "${version}",
+
+	"name": "Example Mod",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": ["Maximumpower55"],
+	"contact": {
+		"homepage": "https://github.com/maximumpower55/fabric-example-mod/wiki",
+		"sources": "https://github.com/maximumpower55/fabric-example-mod"
+	},
+
+	"license": "CC0-1.0",
+	"icon": "assets/example/icon.png",
+
+	"environment": "*",
+	"entrypoints": {
+		"main": ["me.maximumpower55.example.ExampleMod"],
+		"client": ["me.maximumpower55.example.ExampleModClient"]
+	},
+
+	"depends": {
+		"fabricloader": ">=0.11.3",
+		"fabric": ">=0.39.2",
+		"minecraft": ">=1.17.1",
+		"java": ">=16"
+	}
+}
