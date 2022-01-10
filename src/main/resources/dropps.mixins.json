@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "me.maximumpower55.dropps.mixin",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [
+		"common.ItemMixin",
+		"common.access.ItemEntityAccessor",
+		"server.ItemEntityMixin",
+		"server.PlayerMixin"
+	],
+	"client": ["client.ItemEntityRendererMixin"],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

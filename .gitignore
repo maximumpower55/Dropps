@@ -1,9 +1,7 @@
-# gradle
+# brachyura
 
-.gradle/
+.brachyura/
 build/
-out/
-classes/
 
 # eclipse
 
@@ -18,11 +16,7 @@ classes/
 
 # vscode
 
-.settings/
 .vscode/
-bin/
-.classpath
-.project
 
 # macos
 

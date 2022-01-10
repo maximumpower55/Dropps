@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "example",
+	"id": "dropps",
 	"version": "${version}",
 
-	"name": "Example Mod",
+	"name": "Dropps",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": ["Maximumpower55"],
 	"contact": {
@@ -12,18 +12,16 @@
 	},
 
 	"license": "CC0-1.0",
-	"icon": "assets/example/icon.png",
+	"icon": "assets/dropps/icon.png",
 
 	"environment": "*",
 	"entrypoints": {
-		"main": ["me.maximumpower55.example.ExampleMod"],
-		"client": ["me.maximumpower55.example.ExampleModClient"]
+		"main": ["me.maximumpower55.dropps.DroppsMod"]
 	},
+	"mixins": ["dropps.mixins.json"],
 
 	"depends": {
-		"fabricloader": ">=0.11.3",
-		"fabric": ">=0.39.2",
-		"minecraft": ">=1.17.1",
-		"java": ">=16"
+		"fabricloader": ">=0.12",
+		"minecraft": ">=1.18"
 	}
 }
