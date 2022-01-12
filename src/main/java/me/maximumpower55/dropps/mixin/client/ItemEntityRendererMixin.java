@@ -22,7 +22,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -30,7 +29,6 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 
@@ -72,37 +70,16 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
         final int renderAmount = getRenderAmount(itemStack);
 
-        final Item item = itemStack.getItem();
-        final ItemPhysicsType itemPhysicsType = ((ExtendedItem)item).getPhysicsType();
+        final ItemPhysicsType itemPhysicsType = ((ExtendedItem)itemStack.getItem()).getPhysicsType();
 
         final boolean hasDepth = itemPhysicsType == ItemPhysicsType.BLOCK && bakedModel.isGui3d();
 
         final ItemTransform transform = bakedModel.getTransforms().ground;
 
-        final float scaleX = transform.scale.x();
-        final float scaleY = transform.scale.y();
-        final float scaleZ = transform.scale.z();
-
-        final double blockHeight = !hasDepth ? 0 : Shapes.block().max(Direction.Axis.Y);
-        final double distanceToCenter = (.5 - blockHeight + blockHeight / 2) * .25;
-
-        poseStack.translate(0d, .125, 0d);
-
-        if(hasDepth) poseStack.translate(0, distanceToCenter, 0);
-
-        float groundDistance = hasDepth ? (float)distanceToCenter : (float)(0.125 - 0.0625 * scaleZ);
-        if(!hasDepth) groundDistance -= (renderAmount - 1) * .05 * scaleZ;
-        poseStack.translate(0, -groundDistance, 0);
-
-        poseStack.translate(0, (random.nextDouble() - .5) * .005, 0);
-
-        if(hasDepth) poseStack.translate(0, -distanceToCenter, 0);
-
         poseStack.mulPose(orientation);
+        poseStack.translate(0, -itemPhysicsType.offset(), 0);
 
-        if(hasDepth) poseStack.translate(0, distanceToCenter, 0);
-
-        poseStack.translate(0, 0, ((.09375 - (renderAmount * .1)) * .5) * scaleZ);
+        poseStack.translate(0, 0, ((.09375 - (renderAmount * .1)) * .5));
 
         for(int i = 0; i < renderAmount; ++i) {
             poseStack.pushPose();
@@ -122,19 +99,18 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
             poseStack.mulPose(new Quaternion(transform.rotation.x(), transform.rotation.y(), transform.rotation.z(), true));
 
-            poseStack.scale(scaleX, scaleY, scaleZ);
+            poseStack.scale(1.25f, 1.25f, 1.25f);
 
-            itemRenderer.render(itemStack, ItemTransforms.TransformType.NONE, false, poseStack, buffer, light, OverlayTexture.NO_OVERLAY, bakedModel);
+            itemRenderer.render(itemStack, ItemTransforms.TransformType.GROUND, false, poseStack, buffer, light, OverlayTexture.NO_OVERLAY, bakedModel);
 
             poseStack.popPose();
 
-            if(!hasDepth)
-                poseStack.translate(0d, 0d, .1 * scaleZ);
+            if(!hasDepth) {
+                poseStack.translate(0, 0, .1);
+            }
         }
 
         poseStack.popPose();
-
-        super.render(entity, entityYaw, tickDelta, poseStack, buffer, light);
 
         ci.cancel();
     }

@@ -5,8 +5,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.AABB;
 
 public enum ItemPhysicsType {
-    ITEM(new AABB(-.25, -.25, -.03, .25, .25, .03), 1f, .1125f),
-    BLOCK(new AABB(-.15, -.15, -.15, .15, .15, .15), 2f, .1875f);
+    ITEM(new AABB(-.25, -.25, -.03, .25, .25, .03), 1f, 0.1125f),
+    BLOCK(new AABB(-.15, -.15, -.15, .15, .15, .15), 2f, 0.1875f);
 
     private final AABB aabb;
     private final float mass;

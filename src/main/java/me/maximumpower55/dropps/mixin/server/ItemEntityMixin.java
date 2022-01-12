@@ -24,6 +24,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin extends Entity implements EntityPhysicsElement {
@@ -62,14 +63,23 @@ public abstract class ItemEntityMixin extends Entity implements EntityPhysicsEle
         setPos(location.x, location.y + getBoundingBox().getYsize() * .5f, location.z);
     }
 
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V", ordinal = 0))
+    private void setDeltaMovementInTick0(ItemEntity self, Vec3 velocity) { }
+
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V", ordinal = 1))
+    private void setDeltaMovementInTick1(ItemEntity self, Vec3 velocity) { }
+
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V", ordinal = 2))
+    private void setDeltaMovementInTick2(ItemEntity self, Vec3 velocity) { }
+
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;noCollision(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Z"))
     private boolean noCollision(Level self, Entity entity, AABB aabb) {
         return true;
     }
 
-    @Inject(method = "isMergable", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "isMergable", at = @At("RETURN"), cancellable = true)
     private void isMergable(CallbackInfoReturnable<Boolean> cir) {
-        if(!DroppsMod.CONFIG.itemMerge()) cir.setReturnValue(false);
+        if(!DroppsMod.getConfig().itemMerge) cir.setReturnValue(false);
     }
 
     @Inject(method = "setUnderwaterMovement", at = @At("HEAD"), cancellable = true)
