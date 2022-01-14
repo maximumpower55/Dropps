@@ -23,7 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 @Mixin(Player.class)
-public abstract class PlayerMixin extends Entity {
+abstract class PlayerMixin extends Entity {
     private PlayerMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
@@ -33,7 +33,7 @@ public abstract class PlayerMixin extends Entity {
         ItemEntity itemEntity = cir.getReturnValue();
 
         if(itemEntity != null) {
-            Vec3 viewVector = getViewVector(1f);
+            Vec3 viewVector = getViewVector(1);
 
             Vec3 normalizedViewVector = viewVector.normalize();
             Vec3 forwardPosition = itemEntity.position().add(normalizedViewVector.scale(.25)).add(0, itemEntity.getEyeHeight(), 0);
@@ -48,7 +48,7 @@ public abstract class PlayerMixin extends Entity {
             QuaternionHelper.rotateZ(orientation, random.nextInt(180));
 
             MinecraftSpace.get(level).getWorkerThread().execute(() -> {
-                rigidBody.setLinearVelocity(Convert.toBullet(getViewVector(1).scale(DroppsMod.getConfig().throwVelocity)));
+                rigidBody.setLinearVelocity(Convert.toBullet(viewVector.scale(DroppsMod.getConfig().throwVelocity)));
                 rigidBody.setAngularVelocity(new Vector3f(random.nextInt(10) - 5, random.nextInt(10) - 5, random.nextInt(10) - 5));
                 rigidBody.setPhysicsRotation(Convert.toBullet(orientation));
             });

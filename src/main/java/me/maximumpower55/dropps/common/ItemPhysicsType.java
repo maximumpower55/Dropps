@@ -1,12 +1,14 @@
 package me.maximumpower55.dropps.common;
 
-import net.minecraft.world.item.BlockItem;
+import net.minecraft.core.Registry;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 
 public enum ItemPhysicsType {
-    ITEM(new AABB(-.25, -.25, -.03, .25, .25, .03), 1f, 0.1125f),
-    BLOCK(new AABB(-.15, -.15, -.15, .15, .15, .15), 2f, 0.1875f);
+    ITEM(new AABB(-.25, -.25, -.03, .25, .25, .03), 1.0f, 0.1125f),
+    BLOCK(new AABB(-.125, -.125, -.125, .125, .125, .125), 2.0f, 0.1875f);
 
     private final AABB aabb;
     private final float mass;
@@ -31,8 +33,10 @@ public enum ItemPhysicsType {
     }
 
     public static ItemPhysicsType forItem(Item item) {
-        if(item instanceof BlockItem) return ItemPhysicsType.BLOCK;
+        Block block = Registry.BLOCK.get(Registry.ITEM.getKey(item));
 
-        return ItemPhysicsType.ITEM;
+        if(block != Blocks.AIR) return BLOCK;
+
+        return ITEM;
     }
 }

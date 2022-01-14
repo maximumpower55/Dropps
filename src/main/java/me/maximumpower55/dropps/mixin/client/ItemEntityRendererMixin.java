@@ -4,7 +4,6 @@ import java.util.Random;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import dev.lazurite.rayon.api.EntityPhysicsElement;
 import dev.lazurite.rayon.impl.bullet.math.Convert;
 import me.maximumpower55.dropps.common.ItemPhysicsType;
-import me.maximumpower55.dropps.server.ExtendedItem;
+import me.maximumpower55.dropps.common.ExtendedItemEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
@@ -34,7 +33,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ItemEntityRenderer.class)
-public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity> {
+abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity> {
     @Shadow
     @Final
     private Random random;
@@ -59,7 +58,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
     private void render(ItemEntity entity, float entityYaw, float tickDelta, PoseStack poseStack, MultiBufferSource buffer, int light, CallbackInfo ci) {
         ItemStack itemStack = entity.getItem();
 
-        final int seed = itemStack.isEmpty() ? 187 : Item.getId(itemStack.getItem()) * entity.getId();
+        final int seed = itemStack.isEmpty() ? 187 : Item.getId(itemStack.getItem()) * itemStack.getDamageValue();
         random.setSeed(seed);
 
         poseStack.pushPose();
@@ -70,7 +69,7 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
         final int renderAmount = getRenderAmount(itemStack);
 
-        final ItemPhysicsType itemPhysicsType = ((ExtendedItem)itemStack.getItem()).getPhysicsType();
+        final ItemPhysicsType itemPhysicsType = ((ExtendedItemEntity)entity).getPhysicsType();
 
         final boolean hasDepth = itemPhysicsType == ItemPhysicsType.BLOCK && bakedModel.isGui3d();
 
@@ -78,8 +77,6 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
         poseStack.mulPose(orientation);
         poseStack.translate(0, -itemPhysicsType.offset(), 0);
-
-        poseStack.translate(0, 0, ((.09375 - (renderAmount * .1)) * .5));
 
         for(int i = 0; i < renderAmount; ++i) {
             poseStack.pushPose();
@@ -92,21 +89,18 @@ public abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity>
 
                     poseStack.translate(xOffset, yOffset, zOffset);
                 } else {
-                    poseStack.translate(0, .125, 0);
-                    poseStack.mulPose(Vector3f.ZP.rotation((this.random.nextFloat() - .5f)));
-                    poseStack.translate(0, -.125, 0);
+                    final float xOffset = (this.random.nextFloat() * 2f - 1f) * .15f * .5f;
+                    final float yOffset = (this.random.nextFloat() * 2f - 1f) * .15f * .5f;
+
+                    poseStack.translate(xOffset, yOffset, 0);
                 }
-
-            poseStack.mulPose(new Quaternion(transform.rotation.x(), transform.rotation.y(), transform.rotation.z(), true));
-
-            poseStack.scale(1.25f, 1.25f, 1.25f);
 
             itemRenderer.render(itemStack, ItemTransforms.TransformType.GROUND, false, poseStack, buffer, light, OverlayTexture.NO_OVERLAY, bakedModel);
 
             poseStack.popPose();
 
             if(!hasDepth) {
-                poseStack.translate(0, 0, .1);
+                poseStack.translate(0, 0, .1 * transform.scale.z());
             }
         }
 

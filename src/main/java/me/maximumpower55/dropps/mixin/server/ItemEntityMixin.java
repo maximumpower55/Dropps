@@ -15,19 +15,23 @@ import dev.lazurite.rayon.api.EntityPhysicsElement;
 import dev.lazurite.rayon.impl.bullet.collision.body.entity.EntityRigidBody;
 import dev.lazurite.rayon.impl.bullet.collision.body.shape.MinecraftShape;
 import dev.lazurite.rayon.impl.bullet.collision.space.MinecraftSpace;
+import dev.lazurite.rayon.impl.bullet.math.Convert;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
 import me.maximumpower55.dropps.DroppsMod;
+import me.maximumpower55.dropps.common.ExtendedItemEntity;
 import me.maximumpower55.dropps.common.ItemPhysicsType;
-import me.maximumpower55.dropps.server.ExtendedItem;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin extends Entity implements EntityPhysicsElement {
+abstract class ItemEntityMixin extends Entity implements EntityPhysicsElement, ExtendedItemEntity {
     @Shadow abstract ItemStack getItem();
 
     @Shadow abstract void tryToMerge(ItemEntity itemEntity);
@@ -35,18 +39,14 @@ public abstract class ItemEntityMixin extends Entity implements EntityPhysicsEle
     @Unique
     private final EntityRigidBody rigidBody = new EntityRigidBody(this);
 
+    @Unique
+    private Item prevItem = Items.AIR;
+
+    @Unique
+    private ItemPhysicsType physicsType = ItemPhysicsType.ITEM;
+
     private ItemEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
-    }
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(EntityType<?> entityType, Level level, CallbackInfo ci) {
-        ItemPhysicsType physicsType = ((ExtendedItem)getItem().getItem()).getPhysicsType();
-
-        MinecraftSpace.get(level).getWorkerThread().execute(() -> {
-            rigidBody.setCollisionShape(MinecraftShape.of(physicsType.aabb()));
-            rigidBody.setMass(physicsType.mass());
-        });
     }
 
     @Inject(
@@ -58,9 +58,20 @@ public abstract class ItemEntityMixin extends Entity implements EntityPhysicsEle
             )
     )
     private void tick(CallbackInfo info) {
+        if(!getItem().getItem().equals(prevItem)) {
+            physicsType = ItemPhysicsType.forItem(getItem().getItem());
+
+            MinecraftSpace.get(level).getWorkerThread().execute(() -> {
+                rigidBody.setCollisionShape(MinecraftShape.of(physicsType.aabb()));
+                rigidBody.setMass(physicsType.mass());
+            });
+
+            prevItem = getItem().getItem();
+        }
+
         Vector3f location = rigidBody.getPhysicsLocation(new Vector3f());
 
-        setPos(location.x, location.y + getBoundingBox().getYsize() * .5f, location.z);
+        setPos(location.x, location.y + getBoundingBox().getYsize() / 2, location.z);
     }
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V", ordinal = 0))
@@ -93,6 +104,11 @@ public abstract class ItemEntityMixin extends Entity implements EntityPhysicsEle
     }
 
     @Override
+    public void move(MoverType moverType, Vec3 movement) {
+        MinecraftSpace.get(level).getWorkerThread().execute(() -> rigidBody.applyCentralImpulse(Convert.toBullet(movement)));
+    }
+
+    @Override
     protected boolean updateInWaterStateAndDoFluidPushing() {
         return false;
     }
@@ -100,5 +116,10 @@ public abstract class ItemEntityMixin extends Entity implements EntityPhysicsEle
     @Override
     public EntityRigidBody getRigidBody() {
         return rigidBody;
+    }
+
+    @Override
+    public ItemPhysicsType getPhysicsType() {
+        return physicsType;
     }
 }
