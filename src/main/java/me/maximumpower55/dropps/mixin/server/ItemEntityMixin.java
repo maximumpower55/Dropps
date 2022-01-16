@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import dev.lazurite.rayon.api.EntityPhysicsElement;
-import dev.lazurite.rayon.impl.bullet.collision.body.entity.EntityRigidBody;
+import dev.lazurite.rayon.impl.bullet.collision.body.EntityRigidBody;
 import dev.lazurite.rayon.impl.bullet.collision.body.shape.MinecraftShape;
 import dev.lazurite.rayon.impl.bullet.collision.space.MinecraftSpace;
 import dev.lazurite.rayon.impl.bullet.math.Convert;
@@ -62,7 +62,7 @@ abstract class ItemEntityMixin extends Entity implements EntityPhysicsElement, E
             physicsType = ItemPhysicsType.forItem(getItem().getItem());
 
             MinecraftSpace.get(level).getWorkerThread().execute(() -> {
-                rigidBody.setCollisionShape(MinecraftShape.of(physicsType.aabb()));
+                rigidBody.setCollisionShape(MinecraftShape.convex(physicsType.aabb()));
                 rigidBody.setMass(physicsType.mass());
             });
 

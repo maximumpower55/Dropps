@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "dropps",
-	"version": "1.0.0",
+	"version": "${version}",
 	"name": "Dropps",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": ["Maximumpower55"],
@@ -20,6 +20,7 @@
 	"mixins": ["dropps.mixins.json"],
 	"depends": {
 		"fabricloader": ">=0.12.12",
+		"fabric": "*",
 		"minecraft": ">=1.18"
 	},
 	"recommends": {

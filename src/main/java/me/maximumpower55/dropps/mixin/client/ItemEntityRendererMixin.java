@@ -75,22 +75,34 @@ abstract class ItemEntityRendererMixin extends EntityRenderer<ItemEntity> {
 
         final ItemTransform transform = bakedModel.getTransforms().ground;
 
+        float scaleX = bakedModel.getTransforms().ground.scale.x();
+        float scaleY = bakedModel.getTransforms().ground.scale.y();
+        float scaleZ = bakedModel.getTransforms().ground.scale.z();
+
         poseStack.mulPose(orientation);
-        poseStack.translate(0, -itemPhysicsType.offset(), 0);
+        poseStack.translate(0, itemPhysicsType.aabb().getYsize() * -.3, itemPhysicsType.aabb().getZsize() * -.5);
+
+        if(!hasDepth) {
+            double r = -.0 * (renderAmount - 1) * 0.5 * scaleX;
+            double s = -.0 * (renderAmount - 1) * 0.5 * scaleY;
+            double t = -.09375 * (renderAmount - 1) * 0.5 * scaleZ;
+
+            poseStack.translate(r, s, t);
+        }
 
         for(int i = 0; i < renderAmount; ++i) {
             poseStack.pushPose();
 
             if(i > 0)
                 if(hasDepth) {
-                    float xOffset = (random.nextFloat() * 2f - 1f) * .15f;
-                    float yOffset = (random.nextFloat() * 2f - 1f) * .15f;
-                    float zOffset = (random.nextFloat() * 2f - 1f) * .15f;
+                    double xOffset = (random.nextDouble() * 2 - 1) * .15;
+                    double yOffset = (random.nextDouble() * 2 - 1) * .15;
+                    double zOffset = (random.nextDouble() * 2 - 1) * .15;
 
                     poseStack.translate(xOffset, yOffset, zOffset);
                 } else {
-                    final float xOffset = (this.random.nextFloat() * 2f - 1f) * .15f * .5f;
-                    final float yOffset = (this.random.nextFloat() * 2f - 1f) * .15f * .5f;
+                    double xOffset = (random.nextDouble() * 2 - 1) * .15 * .5;
+                    double yOffset = (random.nextDouble() * 2 - 1) * .15 * .5;
 
                     poseStack.translate(xOffset, yOffset, 0);
                 }
