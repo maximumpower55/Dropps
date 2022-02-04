@@ -1,29 +1,28 @@
 {
-	"schemaVersion": 1,
-	"id": "dropps",
-	"version": "${version}",
-	"name": "Dropps",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": ["Maximumpower55"],
-	"contact": {
-		"homepage": "https://modrinth.com/mod/dropps",
-		"sources": "https://github.com/maximumpower55/Dropps.git",
-		"issues": "https://github.com/maximumpower55/Dropps/issues"
-	},
-	"license": "LGPL-3",
-	"icon": "assets/dropps/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": ["me.maximumpower55.dropps.DroppsMod"],
-		"modmenu": ["me.maximumpower55.dropps.DroppsModMenu"]
-	},
-	"mixins": ["dropps.mixins.json"],
-	"depends": {
-		"fabricloader": ">=0.12.12",
-		"fabric": "*",
-		"minecraft": ">=1.18"
-	},
-	"recommends": {
-		"modmenu": ">=2.0.0"
-	}
+  "schemaVersion": 1,
+  "id": "dropps",
+  "version": "${version}",
+  "name": "Dropps",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": ["Maximumpower55"],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/dropps",
+    "sources": "https://github.com/maximumpower55/Dropps.git",
+    "issues": "https://github.com/maximumpower55/Dropps/issues"
+  },
+  "license": "LGPL-3.0-only",
+  "icon": "assets/dropps/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["me.maximumpower55.dropps.DroppsMod"],
+    "modmenu": ["me.maximumpower55.dropps.config.DroppsModMenuPlugin"]
+  },
+  "mixins": ["dropps.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.12.5",
+    "minecraft": "1.18.*"
+  },
+  "recommends": {
+    "modmenu": ">=3.0.0"
+  }
 }

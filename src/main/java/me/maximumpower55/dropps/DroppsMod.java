@@ -1,25 +1,55 @@
 package me.maximumpower55.dropps;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import me.shedaniel.autoconfig.AutoConfig;
+import dev.lazurite.rayon.api.EntityPhysicsElement;
+import dev.lazurite.rayon.api.event.collision.ElementCollisionEvents;
+import me.maximumpower55.dropps.common.ExtendedItemEntity;
+import me.maximumpower55.dropps.config.DroppsConfig;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.Level;
 
 public class DroppsMod implements ModInitializer {
-    public static final String MOD_ID = "dropps";
+	public static final String MOD_ID = "dropps";
 
-    private static ModConfig config = null;
+	private static DroppsMod INSTANCE;
 
-    public static final Logger LOGGER = LogManager.getLogger(DroppsMod.class);
+	public final DroppsConfig config = new DroppsConfig(this);
 
-    @Override
-    public void onInitialize() {
-        ModConfig.register();
-    }
+	public final Logger logger = LoggerFactory.getLogger("Dropps");
 
-    public static ModConfig getConfig() {
-        if(config == null) config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
-        return config;
-    }
+	@Override
+	public void onInitialize() {
+		INSTANCE = this;
+
+		logger.info("Physics very cool. you wouldn't exist without it");
+
+		config.load();
+
+		ModNetworking.register(config);
+
+		ElementCollisionEvents.ELEMENT_COLLISION.register((body1, body2, impulse) -> {
+			if(config.itemMerge && body1 instanceof ItemEntity && body2 instanceof ItemEntity) {
+				ItemEntity item1 = ((ItemEntity)((EntityPhysicsElement)body1).cast());
+				ItemEntity item2 = ((ItemEntity)((EntityPhysicsElement)body2).cast());
+				Level level = item1.getLevel();
+
+				if(!level.isClientSide()) {
+					((ExtendedItemEntity)item1).invokeTryToMerge(item2);
+				}
+			}
+		});
+	}
+
+	public static ResourceLocation id(@NotNull String path) {
+		return new ResourceLocation(MOD_ID, path);
+	}
+
+	public static DroppsMod getInstance() {
+		return INSTANCE;
+	}
 }
